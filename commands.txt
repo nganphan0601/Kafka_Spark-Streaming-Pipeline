@@ -1,4 +1,8 @@
 
+# Activate venv 
+source venv/bin/activate
+
+# submit spark job to read streaming data from kafka
 docker run -it --rm \
 --name stream-job-test \
 --network=streaming-network \
@@ -9,5 +13,5 @@ docker run -it --rm \
 unigap/spark:3.5 \
 spark-submit \
 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 \
-/spark-project/jobs/stream_job.py
+/spark-project/main.py
 

@@ -1,9 +1,8 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import explode
-from pyspark.sql.functions import split
-
-
-from jobs.stream_job import run_stream_job
+from config import KAFKA_CONFIG, POSTGRES_CONFIG
+from spark_processor import SparkProcessor
 
 if __name__ == "__main__":
-    run_stream_job()
+    pipeline_name = "test_pipeline"
+    processor = SparkProcessor(KAFKA_CONFIG, pipeline_name)
+    raw_df = processor.read_stream()
+    transformed_df = processor.transform(raw_df)
