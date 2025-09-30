@@ -1,0 +1,13 @@
+
+docker run -it --rm \
+--name stream-job-test \
+--network=streaming-network \
+-e HOME=/tmp \
+-e JAVA_HOME=/opt/bitnami/java \
+-e PYTHONPATH=/spark-project \
+-v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark-project \
+unigap/spark:3.5 \
+spark-submit \
+--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 \
+/spark-project/jobs/stream_job.py
+

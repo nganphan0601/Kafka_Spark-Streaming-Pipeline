@@ -1,15 +1,17 @@
+import sys
+import os
 from config.kafka_config import KAFKA_CONFIG
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 spark = SparkSession.builder.appName("read_Kafka_streaming").getOrCreate()
 
 df = spark \
   .readStream \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", KAFKA_CONFIG["bootstrap_servers"]) \
-  .option("subscribe", KAFKA_CONFIG["topic"]) \
+  .options(**KAFKA_CONFIG) \
   .load()
 
 query = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)") \
