@@ -18,16 +18,10 @@ class SparkProcessor:
 
     def transform(self, df):
         #parse Kafka "value" column as JSON using the defined schema for fact table
-        parsed_df = df.select(from_json(col("value").cast("string"), fact_schema).alias("data")) \
+        return df.select(from_json(col("value").cast("string"), fact_schema).alias("data")) \
         .select("data.*")
 
-        # Write to console for testing
-        query = parsed_df.writeStream \
-            .format("console") \
-            .outputMode("append") \
-            .option("truncate", False).start()
         
-        query.awaitTermination()
 
     def write_to_postgres(self, df, postgres_config, tb_name):
         df.writeStream \
