@@ -13,3 +13,4 @@ KAFKA_CONFIG = {
 }
 
 POSTGRES_CONFIG = {}
+

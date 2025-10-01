@@ -1,4 +1,7 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import from_json, col
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+from schema import fact_schema
 
 class SparkProcessor:
     def __init__(self, kafka_config, pipeline_name):
@@ -14,11 +17,16 @@ class SparkProcessor:
             .load()
 
     def transform(self, df):
-        query = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)") \
-            .writeStream \
+        #parse Kafka "value" column as JSON using the defined schema for fact table
+        parsed_df = df.select(from_json(col("value").cast("string"), fact_schema).alias("data")) \
+        .select("data.*")
+
+        # Write to console for testing
+        query = parsed_df.writeStream \
             .format("console") \
             .outputMode("append") \
-            .start()
+            .option("truncate", False).start()
+        
         query.awaitTermination()
 
     def write_to_postgres(self, df, postgres_config, tb_name):
