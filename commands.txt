@@ -4,16 +4,15 @@ source venv/bin/activate
 
 # submit spark job to read streaming data from kafka
 docker run -it --rm \
---name stream-job-test \
---network=streaming-network \
--e HOME=/tmp \
--e JAVA_HOME=/opt/bitnami/java \
--e PYTHONPATH=/spark-project \
--v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark-project \
-unigap/spark:3.5 \
-spark-submit \
---master spark://spark:7077 \
---packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 \
-/spark-project/main.py
+  --name stream-job-test \
+  --network=streaming-network \
+  -e HOME=/tmp \
+  -e JAVA_HOME=/opt/bitnami/java \
+  -e PYTHONPATH=/spark-project \
+  -v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark-project \
+  unigap/spark:3.5 \
+  spark-submit \
+  /spark-project/main.py
+
 
 
