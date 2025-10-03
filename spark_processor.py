@@ -24,18 +24,24 @@ class SparkProcessor:
         .select("data.*")
 
         
-
-    def write_to_postgres(self, df, postgres_config, tb_name):
-        df.writeStream \
-        .foreachBatch(
-            lambda batch_df, _: (
-                batch_df.write.format("jdbc") \
-                .option("url", postgres_config["url"])
-                .option("dbtable", tb_name)
-                .option("user", postgres_config["user"])
-                .option("password", postgres_config["password"])
-                .mode("append")
-                .save()
+    def write_to_postgres(self, df, postgres_config, tb_name="fact_views_raw"):
+        """
+        Write streaming DataFrame to Postgres (raw fact table).
+        """
+        return (df.writeStream
+            .foreachBatch(
+                lambda batch_df, _: (
+                    batch_df.write
+                        .format("jdbc")
+                        .option("url", postgres_config["url"])           
+                        .option("dbtable", tb_name)                      
+                        .option("user", postgres_config["user"])
+                        .option("password", postgres_config["password"])
+                        .option("driver", postgres_config["driver"])
+                        .mode("append")
+                        .save()
+                )
             )
-        ) \
-        .start()
+            .outputMode("append")
+            .start()
+        )

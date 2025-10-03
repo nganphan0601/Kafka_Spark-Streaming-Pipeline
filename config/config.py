@@ -13,11 +13,10 @@ KAFKA_CONFIG = {
 }
 
 POSTGRES_CONFIG = {
-    "url": "jdbc:postgresql://postgres:5432/streaming_db",
+    "url": "jdbc:postgresql://postgres:5432/spark_project",
     "user": "postgres",
-    "password": "mysecretpassword",
-    "driver": "org.postgresql.Driver",
-    "fact_table": "fact_views_raw"
+    "password": "06012002",
+    "driver": "org.postgresql.Driver"
 }
 
 

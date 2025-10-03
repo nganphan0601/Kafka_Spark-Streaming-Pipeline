@@ -7,10 +7,13 @@ if __name__ == "__main__":
     raw_df = processor.read_stream()
     transformed_df = processor.transform(raw_df)
 
-    # Write to console for testing
-    query = transformed_df.writeStream \
-            .format("console") \
-            .outputMode("append") \
-            .start()
+#     # Write to console for testing
+#     query = transformed_df.writeStream \
+#             .format("console") \
+#             .outputMode("append") \
+#             .start()
         
-    query.awaitTermination()
+#     query.awaitTermination()
+
+    # Write to Postgres raw table
+    processor.write_to_postgres(transformed_df, POSTGRES_CONFIG, "fact_views_raw")
