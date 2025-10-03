@@ -1,6 +1,6 @@
 import sys
 import os
-from config import KAFKA_CONFIG
+from config.config import KAFKA_CONFIG
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 

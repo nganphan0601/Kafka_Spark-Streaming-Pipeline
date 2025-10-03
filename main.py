@@ -1,4 +1,4 @@
-from config import KAFKA_CONFIG, POSTGRES_CONFIG
+from config.config import KAFKA_CONFIG, POSTGRES_CONFIG
 from spark_processor import SparkProcessor
 
 if __name__ == "__main__":
