@@ -9,9 +9,7 @@ if __name__ == "__main__":
 
     # Write to console for testing
     query = transformed_df.writeStream \
-            .format("json") \
-            .option("path", "/tmp/fact_views") \
-            .option("checkpointLocation", "/tmp/fact_views_checkpoint") \
+            .format("console") \
             .outputMode("append") \
             .start()
         
