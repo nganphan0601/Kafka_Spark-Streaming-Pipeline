@@ -7,6 +7,8 @@ class SparkProcessor:
     def __init__(self, kafka_config, pipeline_name):
         self.spark = SparkSession.builder \
             .appName(pipeline_name) \
+            .master("spark://spark:7077") \
+            .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1") \
             .getOrCreate()
         self.kafka_config = kafka_config
 
