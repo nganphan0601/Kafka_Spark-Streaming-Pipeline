@@ -10,7 +10,12 @@ fact_schema = StructType([
     StructField("email", StringType()),
     StructField("ip", StringType()),
     StructField("local_time", StringType()),
-    StructField("option", ArrayType(MapType(StringType(), StringType()))),
+    StructField("option", ArrayType(
+        StructType([
+            StructField("option_id", StringType()),
+            StructField("option_label", StringType())
+        ])
+    )),
     StructField("product_id", StringType()),
     StructField("referrer_url", StringType()),
     StructField("store_id", StringType()),

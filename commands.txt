@@ -12,6 +12,7 @@ docker run -it --rm \
   -v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark-project \
   unigap/spark:3.5 \
   spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3 \
   /spark-project/main.py
 
 

@@ -8,7 +8,7 @@ class SparkProcessor:
         self.spark = SparkSession.builder \
             .appName(pipeline_name) \
             .master("spark://spark:7077") \
-            .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1") \
+            .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3") \
             .getOrCreate()
         self.kafka_config = kafka_config
 

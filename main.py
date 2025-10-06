@@ -12,8 +12,9 @@ if __name__ == "__main__":
 #             .format("console") \
 #             .outputMode("append") \
 #             .start()
-        
-#     query.awaitTermination()
 
-    # Write to Postgres raw table
-    processor.write_to_postgres(transformed_df, POSTGRES_CONFIG, "fact_views_raw")
+        # Write to Postgres raw table
+    query = processor.write_to_postgres(transformed_df, POSTGRES_CONFIG, "fact_views_raw")
+    query.awaitTermination()
+
+    

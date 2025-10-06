@@ -15,7 +15,7 @@ KAFKA_CONFIG = {
 POSTGRES_CONFIG = {
     "url": "jdbc:postgresql://postgres:5432/spark_project",
     "user": "postgres",
-    "password": "06012002",
+    "password": "UnigapPostgres@123",
     "driver": "org.postgresql.Driver"
 }
 
