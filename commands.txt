@@ -4,7 +4,7 @@ source venv/bin/activate
 
 # submit spark job to read streaming data from kafka
 docker run -it --rm \
-  --name stream-job-test \
+  --name spark-project \
   --network=streaming-network \
   -e HOME=/tmp \
   -e JAVA_HOME=/opt/bitnami/java \
