@@ -9,10 +9,13 @@ docker run -it --rm \
   -e HOME=/tmp \
   -e JAVA_HOME=/opt/bitnami/java \
   -e PYTHONPATH=/spark-project \
+  -e PYSPARK_PYTHON=./environment/bin/python \
+  -e PYSPARK_DRIVER_PYTHON=python \
   -v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark-project \
   unigap/spark:3.5 \
   spark-submit \
   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3 \
+  --archives venv.tar.gz#environment \
   /spark-project/main.py
 
 

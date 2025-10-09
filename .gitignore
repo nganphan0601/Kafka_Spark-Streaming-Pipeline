@@ -208,3 +208,6 @@ __marimo__/
 
 # Configuration
 config/
+
+# Data folder
+data/
