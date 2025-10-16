@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from schema import fact_schema
-from utils import transform_timestamp, transform_product, transform_referrer, transform_useragent
+from utils import transform_timestamp, transform_product, transform_referrer, transform_useragent, \
+    upsert_dim_product
 
 
 class SparkProcessor:
@@ -12,6 +13,9 @@ class SparkProcessor:
             .master("spark://spark:7077") \
             .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3") \
             .getOrCreate()
+        
+        self.spark.sparkContext.setLogLevel("ERROR")
+        
         self.kafka_config = kafka_config
         self.postgres_config = postgres_config
 
@@ -35,7 +39,7 @@ class SparkProcessor:
 
         # dimensional transformation
         df_time = transform_timestamp(df)
-        df_product = transform_product(df, self.spark, self.postgres_config)
+        df_product = transform_product(df)
         df_referrer = transform_referrer(df)
         df_useragent = transform_useragent(df)
 
@@ -56,23 +60,29 @@ class SparkProcessor:
 
 
     def write_to_postgres(self, df, tb_name="fact_views"):
-        """
-        Write streaming DataFrame to Postgres (raw fact table).
-        """
-        return (df.writeStream
+        if tb_name == "dim_product":
+            return (df.writeStream
             .foreachBatch(
-                lambda batch_df, _: (
-                    batch_df.write
-                        .format("jdbc")
-                        .option("url", self.postgres_config["url"])           
-                        .option("dbtable", tb_name)                      
-                        .option("user",  self.postgres_config["user"])
-                        .option("password",  self.postgres_config["password"])
-                        .option("driver",  self.postgres_config["driver"])
-                        .mode("append")
-                        .save()
-                )
+                lambda batch_df, batch_id: upsert_dim_product(batch_df, batch_id, self.postgres_config)
             )
-            .outputMode("append")
+            .outputMode("update")
             .start()
         )
+        else:
+            return (df.writeStream
+                .foreachBatch(
+                    lambda batch_df, _: (
+                        batch_df.write
+                            .format("jdbc")
+                            .option("url", self.postgres_config["url"])           
+                            .option("dbtable", tb_name)                      
+                            .option("user",  self.postgres_config["user"])
+                            .option("password",  self.postgres_config["password"])
+                            .option("driver",  self.postgres_config["driver"])
+                            .mode("append")
+                            .save()
+                    )
+                )
+                .outputMode("append")
+                .start()
+            )
