@@ -2,6 +2,10 @@ from user_agents import parse
 from pyspark.sql.functions import udf, col, from_unixtime, to_timestamp, \
     to_date, hour, date_format, regexp_extract
 from pyspark.sql.types import StringType, IntegerType
+from pyspark.sql import functions as F
+import psycopg2
+from psycopg2.extras import execute_values
+
 
 # functions to parse the user agent and get the browser + os
 @udf(StringType())
@@ -19,24 +23,20 @@ def get_os(ua):
         return None
     
 # transformation functions for each dim table
-def transform_product(df, spark, postgres_config):
-    # Read existing product IDs from Postgres 
-    existing_products = spark.read \
-        .format("jdbc") \
-        .option("url", postgres_config["url"]) \
-        .option("dbtable", "dim_product") \
-        .option("user", postgres_config["user"]) \
-        .option("password", postgres_config["password"]) \
-        .load() \
-        .select("product_id").distinct()
 
-    # Extract unique product IDs from stream
-    new_products = df.select("product_id").dropna().distinct()
+def transform_product(df):
+    # Extract product_id and url (current_url field)
+    df_product = (
+        df.select(
+            F.col("product_id"),
+            F.col("current_url").alias("url")
+        )
+        .dropna(subset=["product_id"])   # ignore null product IDs
+        .dropDuplicates(["product_id"])  # keep one per product_id
+    )
 
-    # Keep only new ones
-    new_products = new_products.join(existing_products, on="product_id", how="left_anti")
+    return df_product
 
-    return new_products
 
 
 def transform_referrer(df):
@@ -66,4 +66,36 @@ def transform_timestamp(df):
     df_time = df.select("time_stamp", "date", "hour", "day_of_week", "utc_time").dropna().distinct()
     return df_time
 
+def upsert_dim_product(batch_df, batch_id, postgres_config):
+    # Collect unique product_id-url pairs from this batch
+    products = [
+        (row["product_id"], row["url"])
+        for row in batch_df.select("product_id", "url").dropna(subset=["product_id"]).distinct().collect()
+    ]
+    if not products:
+        return
 
+    conn = psycopg2.connect(
+        dbname="dim_product",
+        user=postgres_config["user"],
+        password=postgres_config["password"],
+        host=postgres_config["host"],
+        port=postgres_config["port"]
+    )
+    cur = conn.cursor()
+
+    # PostgreSQL upsert: insert or update on conflict
+    execute_values(
+        cur,
+        """
+        INSERT INTO dim_product (product_id, url)
+        VALUES %s
+        ON CONFLICT (product_id)
+        DO UPDATE SET url = EXCLUDED.url;
+        """,
+        products
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
