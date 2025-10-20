@@ -143,6 +143,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+environment/
 
 # Spyder project settings
 .spyderproject
@@ -211,3 +212,5 @@ config/
 
 # Data folder
 data/
+
+environment.tar.gz

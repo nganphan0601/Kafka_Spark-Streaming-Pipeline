@@ -38,7 +38,6 @@ def transform_product(df):
     return df_product
 
 
-
 def transform_referrer(df):
     df_ref = df.select("referrer_url").dropna().distinct()
     df_ref = df_ref.withColumn(
@@ -46,6 +45,7 @@ def transform_referrer(df):
         regexp_extract(col("referrer_url"), r"https?://([^/]+)/?", 1)
     )
     return df_ref.select("referrer_url", "domain_name")
+
 
 def transform_useragent(df):
     df_ua = df.select("user_agent").dropna().distinct()
@@ -63,10 +63,10 @@ def transform_timestamp(df):
            .withColumn("day_of_week", date_format("utc_time", "E"))
     
     df = df.withColumn("hour", col("hour").cast(IntegerType()))
-    df_time = df.select("time_stamp", "date", "hour", "day_of_week", "utc_time").dropna().distinct()
+    df_time = df.select("date", "hour", "day_of_week", "utc_time").dropna().distinct()
     return df_time
 
-def upsert_dim_product(batch_df, batch_id, postgres_config):
+def upsert_dim_product(batch_df, postgres_config):
     # Collect unique product_id-url pairs from this batch
     products = [
         (row["product_id"], row["url"])
