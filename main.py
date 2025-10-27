@@ -1,4 +1,4 @@
-from config.config import KAFKA_CONFIG, POSTGRES_CONFIG
+from config.config import KAFKA_LOCAL_CONFIG, POSTGRES_CONFIG
 from spark_processor import SparkProcessor
 
 import logging
@@ -8,10 +8,10 @@ print("🟢 Starting pipeline...\n")
 
 if __name__ == "__main__":
     pipeline_name = "Kafka_Spark_Project"
-    pipeline = SparkProcessor(KAFKA_CONFIG, POSTGRES_CONFIG, pipeline_name)
+    pipeline = SparkProcessor(KAFKA_LOCAL_CONFIG, POSTGRES_CONFIG, pipeline_name)
     
     # TEMP: test raw Kafka stream
-    # pipeline.debug_print_raw_stream()
+    pipeline.debug_print_raw_stream()
 
     # Read the stream
     raw_df = pipeline.read_stream()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
             .start()
     )
 
-
+    print("STREAMING QUERY STARTED. WAITING FOR BATCHES.....\n")
     query.awaitTermination()
 
     

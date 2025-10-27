@@ -29,7 +29,9 @@ class SparkProcessor:
         #parse Kafka "value" column as JSON using the defined schema for fact table
         df =  df.select(from_json(col("value").cast("string"), fact_schema).alias("data")) \
         .select("data.*")
-
+        df.printSchema()
+        df.show(5)
+        
         # filter records with collection = "view_product_detail"
         filtered_df = df.filter(col("collection") == "view_product_detail")
 
