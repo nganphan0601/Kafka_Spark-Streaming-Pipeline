@@ -1,9 +1,9 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col
+from pyspark.sql.functions import from_json, col, to_json
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from schema import fact_schema
 from utils import transform_timestamp, transform_product, transform_referrer, transform_useragent, \
-    upsert_dim_product
+    upsert_dim_product, upsert_dim_referrer, upsert_dim_userAgent, upsert_dim_time
 from pyspark.sql.functions import current_timestamp
 
 class SparkProcessor:
@@ -14,7 +14,7 @@ class SparkProcessor:
             .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3") \
             .getOrCreate()
         
-        self.spark.sparkContext.setLogLevel("ERROR")
+        # self.spark.sparkContext.setLogLevel("INFO")
 
         self.kafka_config = kafka_config
         self.postgres_config = postgres_config
@@ -56,7 +56,7 @@ class SparkProcessor:
             "_id", "api_version", "collection", "current_url", "device_id",
             "email_address", "ip", "local_time", "option", "product_id", "referrer_url",
             "store_id", "time_stamp", "user_agent", "inserted_at"
-        )
+        ).withColumn("option", to_json(col("option")))
 
         return {
         "dim_time": df_time,
@@ -71,6 +71,12 @@ class SparkProcessor:
         if tb_name == "dim_product":
             # df is a batch DataFrame inside foreachBatch
             upsert_dim_product(df, self.postgres_config) 
+        elif tb_name == "dim_referrer":
+            upsert_dim_referrer(df, self.postgres_config)
+        elif tb_name == "dim_user_agent":
+            upsert_dim_userAgent(df, self.postgres_config)
+        elif tb_name == "dim_time":
+            upsert_dim_time(df, self.postgres_config)
         else:
             df.write \
                 .format("jdbc") \

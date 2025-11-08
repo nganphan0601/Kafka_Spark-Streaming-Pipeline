@@ -15,6 +15,7 @@ docker run -it --rm \
 --network=streaming-network \
 -p 4040:4040 \
 -v /home/ngan/DE/Kafka_Spark-Streaming-Pipeline:/spark \
+-v spark_lib:/opt/bitnami/spark/.ivy2 \
 -e PYSPARK_PYTHON=./environment/bin/python \
 -e PYSPARK_DRIVER_PYTHON=python \
 unigap/spark:3.5 bash -c "
@@ -23,9 +24,6 @@ python -m venv environment &&
   pip install -r /spark/requirements.txt &&
   venv-pack -o environment.tar.gz &&
 spark-submit \
-    --executor-memory 4G \
-    --driver-memory 4G \
-    --conf spark.executor.cores=2 \
     --conf spark.executor.instances=2 \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3 \
     --archives environment.tar.gz#environment \
