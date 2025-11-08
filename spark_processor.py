@@ -22,7 +22,13 @@ class SparkProcessor:
     def read_stream(self):
         return self.spark.readStream \
             .format("kafka") \
-            .options(**self.kafka_config) \
+            .option("kafka.bootstrap.servers", self.kafka_config["kafka.bootstrap.servers"]) \
+            .option("subscribe", self.kafka_config["subscribe"]) \
+            .option("startingOffsets", self.kafka_config["startingOffsets"]) \
+            .option("failOnDataLoss", self.kafka_config["failOnDataLoss"]) \
+            .option("kafka.security.protocol", self.kafka_config["kafka.security.protocol"]) \
+            .option("kafka.sasl.mechanism", self.kafka_config["kafka.sasl.mechanism"]) \
+            .option("kafka.sasl.jaas.config", self.kafka_config["kafka.sasl.jaas.config"]) \
             .load()
 
     def transform(self, df):

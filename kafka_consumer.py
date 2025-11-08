@@ -16,7 +16,8 @@ password = jaas_config.split("password='")[1].split("'")[0]
 source_consumer = KafkaConsumer(
     source_topic,
     bootstrap_servers=source_servers,
-    auto_offset_reset="earliest",
+    group_id="bridge-consumer-group",
+    auto_offset_reset="latest",
     enable_auto_commit=True,
     security_protocol=KAFKA_SOURCE_CONFIG["kafka.security.protocol"],
     sasl_mechanism=KAFKA_SOURCE_CONFIG["kafka.sasl.mechanism"],

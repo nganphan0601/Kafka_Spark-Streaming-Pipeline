@@ -2,6 +2,9 @@
 # Activate venv 
 source venv/bin/activate
 
+# start the spark-project container
+docker start -ai spark-project 
+
 # submit spark job to read streaming data from kafka
 
 docker container stop spark-project || true
@@ -15,16 +18,21 @@ docker run -it --rm \
 -e PYSPARK_PYTHON=./environment/bin/python \
 -e PYSPARK_DRIVER_PYTHON=python \
 unigap/spark:3.5 bash -c "
+python -m venv environment &&
+  source environment/bin/activate &&
+  pip install -r /spark/requirements.txt &&
+  venv-pack -o environment.tar.gz &&
 spark-submit \
+    --executor-memory 4G \
+    --driver-memory 4G \
+    --conf spark.executor.cores=2 \
+    --conf spark.executor.instances=2 \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3 \
     --archives environment.tar.gz#environment \
     /spark/main.py
 "
 
-  python -m venv environment &&
-  source environment/bin/activate &&
-  pip install -r /spark/requirements.txt &&
-  venv-pack -o environment.tar.gz &&
+
 
 kafka-console-consumer \
   --bootstrap-server 46.202.167.130:9094 \
@@ -33,4 +41,5 @@ kafka-console-consumer \
   --consumer-property security.protocol=SASL_PLAINTEXT \
   --consumer-property sasl.mechanism=PLAIN \
   --consumer-property sasl.jaas.config='org.apache.kafka.common.security.plain.PlainLoginModule required username="kafka" password="UnigapKafka@2024";'
+
 

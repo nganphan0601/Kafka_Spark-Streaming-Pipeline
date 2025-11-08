@@ -1,4 +1,6 @@
-from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType
+from pyspark.sql.types import (
+    StructType, StructField, StringType, LongType, ArrayType, BooleanType
+)
 
 fact_schema = StructType([
     StructField("_id", StringType()),
@@ -11,13 +13,13 @@ fact_schema = StructType([
     StructField("api_version", StringType()),
     StructField("store_id", StringType()),
     StructField("local_time", StringType()),
-    StructField("show_recommendation", StringType()),
+    StructField("show_recommendation", StringType()),  # keep as string for now
     StructField("current_url", StringType()),
     StructField("referrer_url", StringType()),
     StructField("email_address", StringType()),
-    StructField("recommendation", StringType()),
-    StructField("utm_source", StringType()),
-    StructField("utm_medium", StringType()),
+    StructField("recommendation", BooleanType()),
+    StructField("utm_source", BooleanType()),
+    StructField("utm_medium", BooleanType()),
     StructField("collection", StringType()),
     StructField("product_id", StringType()),
     StructField("option", ArrayType(
